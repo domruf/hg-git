@@ -1418,6 +1418,8 @@ class GitHandler(object):
 class AuthManager(object):
     def __init__(self, ui):
         self.ui = ui
+        self.username = None
+        self.password = None
 
     def add_password(self, realm, uri, user, passwd):
         raise NotImplementedError(
@@ -1434,7 +1436,11 @@ class AuthManager(object):
                 break
         else:
             # no matching stanza found!
-            return (None,None)
+            if not self.username or not self.password:
+                self.username = self.ui.prompt('username:')
+                self.password = self.ui.getpass('password:')
+                
+            return (self.username,self.password)
 
         self.ui.note(_('using "%s" auth credentials\n') % (prefix,))
         username = self.ui.config('auth', '%s.username' % prefix)
